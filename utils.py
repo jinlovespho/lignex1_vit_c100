@@ -6,6 +6,7 @@ from autoaugment import CIFAR10Policy, SVHNPolicy
 from criterions import LabelSmoothingCrossEntropyLoss
 from da import RandomCropPaste
 
+
 def get_criterion(args):
     if args.criterion=="ce":
         if args.label_smoothing:
@@ -18,9 +19,45 @@ def get_criterion(args):
     return criterion
 
 def get_model(args):
-    if args.model_name == 'vit':
-        from vit import ViT
-        net = ViT(
+    
+    if args.vit_type == 'vit_tiny':     # 5.8M
+        args.num_layers=12
+        args.hidden=192
+        args.mlp_hidden=768
+        args.head=3
+        
+    elif args.vit_type == 'vit_small':    # 22.2M
+        args.num_layers=12
+        args.hidden=384
+        args.mlp_hidden=1536
+        args.head=6
+        
+    else:
+        pass 
+        
+        
+    if args.model_name == 'vit_splithead':
+        from vit_splithead import ViT_SplitHead
+              
+        net = ViT_SplitHead(
+            args.in_c, 
+            args.num_classes, 
+            img_size=args.size, 
+            patch=args.patch, 
+            dropout=args.dropout, 
+            mlp_hidden=args.mlp_hidden,
+            num_layers=args.num_layers,
+            hidden=args.hidden,
+            head=args.head,
+            is_cls_token=args.is_cls_token,
+            head_mix_method=args.head_mix_method 
+            )
+        
+        
+    elif args.model_name == 'vit_orig':
+        from vit_orig import ViT_Orig
+              
+        net = ViT_Orig(
             args.in_c, 
             args.num_classes, 
             img_size=args.size, 
@@ -32,8 +69,15 @@ def get_model(args):
             head=args.head,
             is_cls_token=args.is_cls_token
             )
-    else:
-        raise NotImplementedError(f"{args.model_name} is not implemented yet...")
+   
+    args.tot_param = sum(i.numel() for i in net.parameters()) / 1e6
+    print('############################## RUN INFO ##############################')
+    print('WANDB EXP NAME: ', args.experiment_name)
+    print('MODEL NAME', args.model_name)
+    print('VIT TYPE: ', args.vit_type)
+    print('HEAD MIX: ', args.head_mix_method)
+    print(f'TOTAL PARAMS: {args.tot_param:.3f}M')
+    print('############################## RUN INFO ##############################')
 
     return net
 
@@ -58,6 +102,7 @@ def get_transform(args):
         transforms.ToTensor(),
         transforms.Normalize(mean=args.mean, std=args.std)
     ]
+    
     if args.rcpaste:
         train_transform += [RandomCropPaste(size=args.size)]
     
@@ -73,7 +118,7 @@ def get_transform(args):
     
 
 def get_dataset(args):
-    root = "data"
+    root = args.dataset_path
     if args.dataset == "c10":
         args.in_c = 3
         args.num_classes=10
@@ -110,7 +155,12 @@ def get_dataset(args):
     return train_ds, test_ds
 
 def get_experiment_name(args):
-    experiment_name = f"{args.model_name}_{args.dataset}"
+    if args.model_name == 'vit_splithead':
+        experiment_name = f"{args.model_name}_{args.vit_type}_method{args.head_mix_method}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+    elif args.model_name == 'vit_orig':
+        experiment_name = f"{args.model_name}_{args.vit_type}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+    
+    # experiment_name = f"tes"
     if args.autoaugment:
         experiment_name+="_aa"
     if args.label_smoothing:
