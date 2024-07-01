@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DATA_ARGS="
-    --dataset_path /mnt/ssd2/dataset/CIFAR100
+    --dataset_path /media/data1/CIFAR100
 "
 
 
@@ -20,14 +20,14 @@ LOG_ARGS="
 MODEL_ARGS="
     --model-name vit_splithead
     --vit-type vit_small
-    --head-mix-method 2
+    --head-mix-method 3
 "
 
 ETC_ARGS="
     --label-smoothing 
     --autoaugment 
     --batch-size 64
-    --lr 0.001 
+    --lr 0.0005 
     --weight-decay 0.0001 
     --dropout 0.1
     --warmup-epoch 5

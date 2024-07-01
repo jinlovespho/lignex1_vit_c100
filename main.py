@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
+from torchvision.utils import save_image 
 import pytorch_lightning as pl
 import warmup_scheduler
 import numpy as np
@@ -13,8 +14,12 @@ from utils import get_model, get_dataset, get_experiment_name, get_criterion
 from da import CutMix, MixUp
 import wandb
 
+from torchprofile import profile_macs 
+from thop import profile
+from fvcore.nn import FlopCountAnalysis
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--api-key", default=True, help="API Key for WandB")
+parser.add_argument("--api-key", default=False, help="API Key for WandB")
 parser.add_argument("--dataset", default="c100", type=str, help="[c10, c100, svhn]")
 parser.add_argument('--dataset_path', type=str)
 parser.add_argument("--num-classes", default=100, type=int)
@@ -71,9 +76,27 @@ class Net(pl.LightningModule):
         if hparams.mixup:
             self.mixup = MixUp(alpha=1.)
         self.log_image_flag = hparams.api_key is None
-    
+        
+        self.train_throughput=[]
+        self.val_throughput=[]
+        
 
     def forward(self, x):
+        
+        # macs = profile_macs(self.model, x)
+        # macs2, params2 = profile(self.model, inputs=(x, ))
+        # flops = FlopCountAnalysis(self.model, x)
+        
+        # patch size 8
+        # image size 32 
+        
+        # print('macs: ', macs/1e9)
+        # print('macs2: ', macs2/1e9)
+        # print('flops: ', flops.total()/1e9)
+
+
+        # breakpoint()
+        
         return self.model(x)
 
     def configure_optimizers(self):
@@ -92,7 +115,18 @@ class Net(pl.LightningModule):
                     img, label, rand_label, lambda_ = self.mixup((img, label))
                 else:
                     img, label, rand_label, lambda_ = img, label, torch.zeros_like(label), 1.
+                    
+            # Training Throughput
+            starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+            starter.record()
             out = self.model(img)
+            ender.record()
+            # WAIT FOR GPU SYNC
+            torch.cuda.synchronize()
+            curr_time = starter.elapsed_time(ender)
+            self.train_throughput.append(curr_time)
+                
+            # out = self.model(img)
             loss = self.criterion(out, label)*lambda_ + self.criterion(out, rand_label)*(1.-lambda_)
         else:
             out = self(img)
@@ -105,19 +139,50 @@ class Net(pl.LightningModule):
         acc = torch.eq(out.argmax(-1), label).float().mean()
         self.log("loss", loss)
         self.log("acc", acc)
+        # save_image(img, 'img_t.jpg', normalize=True)
+
         return loss
 
     def training_epoch_end(self, outputs):
         self.log("lr", self.optimizer.param_groups[0]["lr"], on_epoch=self.current_epoch)
 
     def validation_step(self, batch, batch_idx):
+        
         img, label = batch
-        out = self(img)
+        
+        # Validation Throughput
+        starter, ender = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+        starter.record()
+        out = self.model(img)
+        ender.record()
+        # WAIT FOR GPU SYNC
+        torch.cuda.synchronize()
+        curr_time = starter.elapsed_time(ender)
+        self.val_throughput.append(curr_time)
+        
+        
+        # out = self(img)
         loss = self.criterion(out, label)
         acc = torch.eq(out.argmax(-1), label).float().mean()
         self.log("val_loss", loss)
         self.log("val_acc", acc)
+        # save_image(img, 'img_v.jpg', normalize=True)
+
         return loss
+    
+    def validation_epoch_end(self, outputs):
+        print('validation')
+        
+        n1=np.array(self.train_throughput)
+        n2=np.array(self.val_throughput)
+        
+        breakpoint()
+        
+        self.train_throughput.clear()
+        self.val_throughput.clear()
+        
+        
+        self.log("lr", self.optimizer.param_groups[0]["lr"], on_epoch=self.current_epoch)
     
     def _log_image(self, image):
         pass
@@ -145,5 +210,5 @@ if __name__ == "__main__":
         refresh_rate = 1
     net = Net(args)
 
-    trainer = pl.Trainer(precision=args.precision,fast_dev_run=args.dry_run, gpus=args.gpus, benchmark=args.benchmark, logger=logger, max_epochs=args.max_epochs, weights_summary="full", progress_bar_refresh_rate=refresh_rate)
+    trainer = pl.Trainer(precision=args.precision,fast_dev_run=args.dry_run, gpus=args.gpus, benchmark=args.benchmark, logger=logger, max_epochs=args.max_epochs, weights_summary="full", progress_bar_refresh_rate=refresh_rate, num_sanity_val_steps=0)
     trainer.fit(model=net, train_dataloader=train_dl, val_dataloaders=test_dl)

@@ -38,7 +38,7 @@ def get_model(args):
         
     if args.model_name == 'vit_splithead':
         from vit_splithead import ViT_SplitHead
-              
+        
         net = ViT_SplitHead(
             args.in_c, 
             args.num_classes, 
@@ -52,6 +52,8 @@ def get_model(args):
             is_cls_token=args.is_cls_token,
             head_mix_method=args.head_mix_method 
             )
+
+        print('vit splithead loaded')
         
         
     elif args.model_name == 'vit_orig':
@@ -69,6 +71,8 @@ def get_model(args):
             head=args.head,
             is_cls_token=args.is_cls_token
             )
+        
+        print('vit orig loaded')
    
     args.tot_param = sum(i.numel() for i in net.parameters()) / 1e6
     print('############################## RUN INFO ##############################')
@@ -79,6 +83,8 @@ def get_model(args):
     print(f'TOTAL PARAMS: {args.tot_param:.3f}M')
     print('############################## RUN INFO ##############################')
 
+    breakpoint()
+    
     return net
 
 def get_transform(args):

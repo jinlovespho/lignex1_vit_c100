@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DATA_ARGS="
-    --dataset_path /mnt/ssd2/dataset/CIFAR100
+    --dataset_path /media/data1/CIFAR100
 "
 
 
@@ -9,7 +9,6 @@ LOG_ARGS="
     --project-name 20240627_vit_c100
     --exp-name test
 "
-
 # 0: Linear
 # 1: Feature-wise linear
 # 2: Feature-wise conv

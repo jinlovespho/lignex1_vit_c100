@@ -1,9 +1,8 @@
 #!/bin/bash
 
 DATA_ARGS="
-    --dataset_path /mnt/ssd2/dataset/CIFAR100
+    --dataset_path /media/data1/CIFAR100
 "
-
 
 LOG_ARGS="
     --project-name 20240627_vit_c100
@@ -33,5 +32,5 @@ ETC_ARGS="
     --warmup-epoch 5
 "
 
-CUDA_VISIBLE_DEVICES=0 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
+CUDA_VISIBLE_DEVICES=1 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
 

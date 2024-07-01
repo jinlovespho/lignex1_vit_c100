@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DATA_ARGS="
-    --dataset_path /mnt/ssd2/dataset/CIFAR100
+    --dataset_path /media/data1/CIFAR100
 "
 
 
