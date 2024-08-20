@@ -21,17 +21,19 @@ MODEL_ARGS="
     --model-name vit_splithead
     --vit-type vit_small
     --head-mix-method 3
+    --patch 16
 "
 
 ETC_ARGS="
+    --api-key True
     --label-smoothing 
     --autoaugment 
-    --batch-size 64
+    --batch-size 1
     --lr 0.0005 
     --weight-decay 0.0001 
     --dropout 0.1
     --warmup-epoch 5
 "
 
-CUDA_VISIBLE_DEVICES=0 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
+CUDA_VISIBLE_DEVICES=3 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
 

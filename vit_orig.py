@@ -29,6 +29,7 @@ class ViT_Orig(nn.Module):
     def forward(self, x):
         out = self._to_words(x)
         out = self.emb(out)
+        # breakpoint()
         if self.is_cls_token:
             out = torch.cat([self.cls_token.repeat(out.size(0),1,1), out],dim=1)
         out = out + self.pos_emb

@@ -43,25 +43,27 @@ class TransformerEncoder(nn.Module):
             print(f"self.head_mix_method: Shift-(1/{self.Shift})")
         elif self.head_mix_method==5:
             print(f"self.head_mix_method: Averaging")
+        elif self.head_mix_method==6:
+            print(f"Ablation No Mixing")
 
     def forward(self, x: torch.Tensor):
         nvtx.range_push('model forward_split')
         b, n, f = x.size()
         x = x.view(b, n, self.head, self.feats//self.head)
         out = self.msa(self.la1(x)) + x 
-        out = self.mlp(self.la2(out)) + out
+        out = self.mlp(self.la2(out)) + out     # b n h f
         
         if self.head_mix_method==0:
             # Linear
-            out = out.flatten(2)
-            out = self.Merge(out)
+            out = out.flatten(2)    # b n F
+            out = self.Merge(out)   # b n  F
             # out = out.reshape(b,n, self.head, self.feats//self.head)            
         elif self.head_mix_method==1:
             # Feature-wise Linear
-            out = out.transpose(2,3) #b,n,f,h
+            out = out.transpose(2,3) #b,n,f,h   
             out = self.Merge(out)
             out = out.transpose(2,3) #b,n,h,f
-        elif self.head_mix_method==2:
+        elif self.head_mix_method==2:   # 
             # Feature-wise Conv
             out = out.transpose(2,3) # b,n,f,h
             out = self.Merge(out)
@@ -72,9 +74,11 @@ class TransformerEncoder(nn.Module):
         elif self.head_mix_method==4:
             # Feature Shift
             out = torch.roll(out, shifts=self.feats//self.Shift, dims=-1)
-        elif self.head_mix_method==5:
+        elif self.head_mix_method==5:   
             out = out.mean(dim=2, keepdim=True)
             out = out.expand((-1,-1,self.head,-1))
+        elif self.head_mix_method==6:
+            out = out 
         nvtx.range_pop()
         return out.flatten(2)
 

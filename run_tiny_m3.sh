@@ -21,9 +21,11 @@ MODEL_ARGS="
     --model-name vit_splithead
     --vit-type vit_tiny
     --head-mix-method 3
+    --patch 16
 "
 
 ETC_ARGS="
+    --api-key True
     --label-smoothing 
     --autoaugment 
     --batch-size 64

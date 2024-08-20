@@ -4,7 +4,6 @@ DATA_ARGS="
     --dataset_path /media/data1/CIFAR100
 "
 
-
 LOG_ARGS="
     --project-name 20240627_vit_c100
     --exp-name test
@@ -18,20 +17,21 @@ LOG_ARGS="
 # 5: Averaging
 
 MODEL_ARGS="
-    --model-name vit_splithead
-    --vit-type vit_tiny
-    --head-mix-method 4
+    --model-name vit_orig
+    --vit-type vit_base
+    --head-mix-method -1
 "
 
 ETC_ARGS="
+
     --label-smoothing 
     --autoaugment 
     --batch-size 1
-    --lr 0.001
+    --lr 0.001 
     --weight-decay 0.0001 
-    --dropout 0.2
+    --dropout 0.1
     --warmup-epoch 5
 "
 
-CUDA_VISIBLE_DEVICES=3 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
+CUDA_VISIBLE_DEVICES=0 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
 

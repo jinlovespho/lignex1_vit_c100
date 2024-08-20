@@ -25,7 +25,7 @@ MODEL_ARGS="
 ETC_ARGS="
     --label-smoothing 
     --autoaugment 
-    --batch-size 64
+    --batch-size 1
     --lr 0.001
     --weight-decay 0.0001 
     --dropout 0.2

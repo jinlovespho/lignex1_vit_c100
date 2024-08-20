@@ -32,6 +32,12 @@ def get_model(args):
         args.mlp_hidden=1536
         args.head=6
         
+    elif args.vit_type == 'vit_base':    # 86M
+        args.num_layers=12
+        args.hidden=768
+        args.mlp_hidden=3072
+        args.head=12
+        
     else:
         pass 
         
@@ -162,9 +168,9 @@ def get_dataset(args):
 
 def get_experiment_name(args):
     if args.model_name == 'vit_splithead':
-        experiment_name = f"{args.model_name}_{args.vit_type}_method{args.head_mix_method}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+        experiment_name = f"{args.model_name}_{args.vit_type}_method{args.head_mix_method}_numpatch{args.patch}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
     elif args.model_name == 'vit_orig':
-        experiment_name = f"{args.model_name}_{args.vit_type}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+        experiment_name = f"{args.model_name}_{args.vit_type}_batch:{args.batch_size}_numpatch{args.patch}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
     
     # experiment_name = f"tes"
     if args.autoaugment:

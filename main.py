@@ -16,7 +16,7 @@ import wandb
 
 from torchprofile import profile_macs 
 from thop import profile
-from fvcore.nn import FlopCountAnalysis
+from fvcore.nn import FlopCountAnalysis, flop_count_table
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--api-key", default=False, help="API Key for WandB")
@@ -85,9 +85,16 @@ class Net(pl.LightningModule):
         
         # macs = profile_macs(self.model, x)
         # macs2, params2 = profile(self.model, inputs=(x, ))
-        # flops = FlopCountAnalysis(self.model, x)
+        # print(macs/1e9)
+        # print(macs2/1e9)
         
-        # patch size 8
+        # flops = FlopCountAnalysis(self.model, x)
+        # print(flops.total()/1e9)
+        # # print(flop_count_table(flops))
+        # breakpoint()
+        
+        
+        # patch size 4
         # image size 32 
         
         # print('macs: ', macs/1e9)
@@ -171,15 +178,13 @@ class Net(pl.LightningModule):
         return loss
     
     def validation_epoch_end(self, outputs):
-        print('validation')
+        # print('validation')
         
-        n1=np.array(self.train_throughput)
-        n2=np.array(self.val_throughput)
-        
-        breakpoint()
-        
-        self.train_throughput.clear()
-        self.val_throughput.clear()
+        # n1=np.array(self.train_throughput)
+        # n2=np.array(self.val_throughput)
+        # breakpoint()
+        # self.train_throughput.clear()
+        # self.val_throughput.clear()
         
         
         self.log("lr", self.optimizer.param_groups[0]["lr"], on_epoch=self.current_epoch)
