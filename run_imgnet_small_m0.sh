@@ -33,5 +33,5 @@ ETC_ARGS="
     --warmup-epoch 5
 "
 
-CUDA_VISIBLE_DEVICES=1 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
+CUDA_VISIBLE_DEVICES=0 python main.py  ${DATA_ARGS} ${LOG_ARGS} ${MODEL_ARGS} ${ETC_ARGS}
 
