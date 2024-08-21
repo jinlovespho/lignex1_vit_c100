@@ -2,7 +2,7 @@ import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 
-from autoaugment import CIFAR10Policy, SVHNPolicy
+from autoaugment import CIFAR10Policy, SVHNPolicy, ImageNetPolicy
 from criterions import LabelSmoothingCrossEntropyLoss
 from da import RandomCropPaste
 
@@ -107,6 +107,8 @@ def get_transform(args):
             train_transform.append(CIFAR10Policy())
         elif args.dataset == 'svhn':
             train_transform.append(SVHNPolicy())
+        elif args.dataset == 'imagenet':
+            train_transform.append(ImageNetPolicy())
         else:
             print(f"No AutoAugment for {args.dataset}")   
 
@@ -160,6 +162,18 @@ def get_dataset(args):
         train_transform, test_transform = get_transform(args)
         train_ds = torchvision.datasets.SVHN(root, split="train",transform=train_transform, download=True)
         test_ds = torchvision.datasets.SVHN(root, split="test", transform=test_transform, download=True)
+    
+    elif args.dataset == 'imagenet':
+        breakpoint()
+        args.in_c = 3
+        args.num_classes=1000
+        args.size = 224
+        args.padding = 0
+        args.mean, args.std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+        train_transform, test_transform = get_transform(args)
+        train_ds = torchvision.datasets.ImageNet(root, split="train",transform=train_transform)
+        test_ds = torchvision.datasets.ImageNet(root, split="val", transform=test_transform)
+        
 
     else:
         raise NotImplementedError(f"{args.dataset} is not implemented yet.")
