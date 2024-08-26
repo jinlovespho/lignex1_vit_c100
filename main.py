@@ -32,7 +32,7 @@ parser.add_argument("--min-lr", default=5e-6, type=float)
 parser.add_argument("--beta1", default=0.9, type=float)
 parser.add_argument("--beta2", default=0.999, type=float)
 parser.add_argument("--off-benchmark", action="store_true")
-parser.add_argument("--max-epochs", default=400, type=int)
+parser.add_argument("--max-epochs", default=300, type=int)
 parser.add_argument("--dry-run", action="store_true")
 parser.add_argument("--weight-decay", default=1e-4, type=float)
 parser.add_argument("--warmup-epoch", default=10, type=int)
@@ -47,10 +47,12 @@ parser.add_argument("--mixup", action="store_true")
 parser.add_argument("--dropout", default=0.1, type=float)
 parser.add_argument("--off-cls-token", action="store_true")
 parser.add_argument("--seed", default=42, type=int)
-parser.add_argument("--project-name", default="ViT-small-method4_c100")
+parser.add_argument("--project-name", default="lignex1_vit")
 parser.add_argument("--exp-name", type=str)
 parser.add_argument("--vit-type", type=str)
 parser.add_argument("--head-mix-method", type=int)
+parser.add_argument('--save_dir_path', type=str)
+parser.add_argument('--gpu', type=str)
 args = parser.parse_args()
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -197,10 +199,10 @@ class Net(pl.LightningModule):
 
 if __name__ == "__main__":
     args.experiment_name = get_experiment_name(args)
-    if args.api_key:
+    if args.api_key == 'True':
         print("[INFO] Log with wandb!")
         logger = pl.loggers.WandbLogger(
-            save_dir="logs",
+            save_dir=args.save_dir_path,
             project=args.project_name,
             name=args.experiment_name,
             config=args
@@ -209,7 +211,7 @@ if __name__ == "__main__":
     else:
         print("[INFO] Log with CSV")
         logger = pl.loggers.CSVLogger(
-            save_dir="logs",
+            save_dir=args.save_dir_path,
             name=args.experiment_name
         )
         refresh_rate = 1

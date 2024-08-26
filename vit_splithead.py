@@ -15,6 +15,8 @@ class ViT_SplitHead(nn.Module):
         self.patch_size = img_size//self.patch
         f = (img_size//self.patch)**2*3 # 48 # patch vec length
         num_tokens = (self.patch**2)+1 if self.is_cls_token else (self.patch**2)
+        
+        assert self.patch * self.patch_size == img_size, 'CHECK PATCH SIZE'
 
         self.emb = nn.Linear(f, hidden) # (b, n, f)
         self.conv_proj = nn.Conv2d(in_channels=3, out_channels=hidden, kernel_size=self.patch_size, stride=self.patch_size)

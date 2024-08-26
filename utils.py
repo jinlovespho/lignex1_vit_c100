@@ -96,35 +96,52 @@ def get_model(args):
 def get_transform(args):
     train_transform = []
     test_transform = []
-    train_transform += [
-        transforms.RandomCrop(size=args.size, padding=args.padding)
-    ]
-    if args.dataset != 'svhn':
-        train_transform += [transforms.RandomHorizontalFlip()]
     
-    if args.autoaugment:
-        if args.dataset == 'c10' or args.dataset=='c100':
-            train_transform.append(CIFAR10Policy())
-        elif args.dataset == 'svhn':
-            train_transform.append(SVHNPolicy())
-        elif args.dataset == 'imagenet':
+    if args.dataset == 'c10' or args.dataset == 'c100':
+        train_transform += [transforms.RandomCrop(size=args.size, padding=args.padding),
+                            transforms.RandomHorizontalFlip()]
+        if args.autoaugment:
+            train_transform += [CIFAR10Policy()]
+        train_transform += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
+        if args.rcpaste:
+            train_transform += [RandomCropPaste(size=args.size)]
+            
+        test_transform += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
+    
+    elif args.dataset == 'svhn':
+        train_transform += [transforms.RandomCrop(size=args.size, padding=args.padding),]
+        if args.autoaugment:
+            train_transform += [SVHNPolicy()]
+        train_transform += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
+        if args.rcpaste:
+            train_transform += [RandomCropPaste(size=args.size)]
+            
+        test_transform += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
+        
+    elif args.dataset == 'imagenet':
+        train_transform += [
+            transforms.RandomResizedCrop(args.size),
+            transforms.RandomHorizontalFlip(),]
+        if args.autoaugment:
             train_transform.append(ImageNetPolicy())
-        else:
-            print(f"No AutoAugment for {args.dataset}")   
-
-    train_transform += [
-        transforms.ToTensor(),
-        transforms.Normalize(mean=args.mean, std=args.std)
-    ]
+        train_transform += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
+        
+        test_transform += [
+            transforms.Resize(256),
+            transforms.CenterCrop(args.size),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=args.mean, std=args.std)]
     
-    if args.rcpaste:
-        train_transform += [RandomCropPaste(size=args.size)]
-    
-    test_transform += [
-        transforms.ToTensor(),
-        transforms.Normalize(mean=args.mean, std=args.std)
-    ]
-
     train_transform = transforms.Compose(train_transform)
     test_transform = transforms.Compose(test_transform)
 
@@ -164,11 +181,9 @@ def get_dataset(args):
         test_ds = torchvision.datasets.SVHN(root, split="test", transform=test_transform, download=True)
     
     elif args.dataset == 'imagenet':
-        breakpoint()
         args.in_c = 3
         args.num_classes=1000
         args.size = 224
-        args.padding = 0
         args.mean, args.std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
         train_transform, test_transform = get_transform(args)
         train_ds = torchvision.datasets.ImageNet(root, split="train",transform=train_transform)
@@ -182,9 +197,9 @@ def get_dataset(args):
 
 def get_experiment_name(args):
     if args.model_name == 'vit_splithead':
-        experiment_name = f"{args.model_name}_{args.vit_type}_method{args.head_mix_method}_numpatch{args.patch}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+        experiment_name = f"server8_gpu{args.gpu}_{args.dataset}_{args.model_name}_{args.vit_type}_numpatch{args.patch}_method{args.head_mix_method}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}"
     elif args.model_name == 'vit_orig':
-        experiment_name = f"{args.model_name}_{args.vit_type}_batch:{args.batch_size}_numpatch{args.patch}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}_c100"
+        experiment_name = f"server8_gpu{args.gpu}_{args.dataset}_{args.model_name}_{args.vit_type}_numpatch{args.patch}_batch:{args.batch_size}_lr:{args.lr}_wd:{args.weight_decay}_warm:{args.warmup_epoch}_drop:{args.dropout}"
     
     # experiment_name = f"tes"
     if args.autoaugment:

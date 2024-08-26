@@ -1,0 +1,181 @@
+wandb_version: 1
+
+api_key:
+  desc: null
+  value: 'False'
+dataset:
+  desc: null
+  value: imagenet
+dataset_path:
+  desc: null
+  value: /home/cvlab08/projects/data/imagenet
+num_classes:
+  desc: null
+  value: 1000
+model_name:
+  desc: null
+  value: vit_splithead
+patch:
+  desc: null
+  value: 16
+batch_size:
+  desc: null
+  value: 64
+eval_batch_size:
+  desc: null
+  value: 256
+lr:
+  desc: null
+  value: 0.0005
+min_lr:
+  desc: null
+  value: 5.0e-06
+beta1:
+  desc: null
+  value: 0.9
+beta2:
+  desc: null
+  value: 0.999
+off_benchmark:
+  desc: null
+  value: false
+max_epochs:
+  desc: null
+  value: 400
+dry_run:
+  desc: null
+  value: false
+weight_decay:
+  desc: null
+  value: 0.0001
+warmup_epoch:
+  desc: null
+  value: 5
+precision:
+  desc: null
+  value: 16
+autoaugment:
+  desc: null
+  value: true
+criterion:
+  desc: null
+  value: ce
+label_smoothing:
+  desc: null
+  value: true
+smoothing:
+  desc: null
+  value: 0.1
+rcpaste:
+  desc: null
+  value: false
+cutmix:
+  desc: null
+  value: false
+mixup:
+  desc: null
+  value: false
+dropout:
+  desc: null
+  value: 0.1
+off_cls_token:
+  desc: null
+  value: false
+seed:
+  desc: null
+  value: 42
+project_name:
+  desc: null
+  value: 20240627_vit_c100
+exp_name:
+  desc: null
+  value: test
+vit_type:
+  desc: null
+  value: vit_small
+head_mix_method:
+  desc: null
+  value: 3
+save_dir_path:
+  desc: null
+  value: null
+benchmark:
+  desc: null
+  value: true
+gpus:
+  desc: null
+  value: 4
+num_workers:
+  desc: null
+  value: 16
+is_cls_token:
+  desc: null
+  value: true
+in_c:
+  desc: null
+  value: 3
+size:
+  desc: null
+  value: 224
+padding:
+  desc: null
+  value: 0
+mean:
+  desc: null
+  value:
+  - 0.485
+  - 0.456
+  - 0.406
+std:
+  desc: null
+  value:
+  - 0.229
+  - 0.224
+  - 0.225
+experiment_name:
+  desc: null
+  value: server8_imagenet_vit_splithead_vit_small_method3_numpatch16_batch:64_lr:0.0005_wd:0.0001_warm:5_drop:0.1_aa_ls
+num_layers:
+  desc: null
+  value: 12
+hidden:
+  desc: null
+  value: 384
+mlp_hidden:
+  desc: null
+  value: 1536
+head:
+  desc: null
+  value: 6
+tot_param:
+  desc: null
+  value: 4.52068
+_wandb:
+  desc: null
+  value:
+    python_version: 3.9.18
+    cli_version: 0.16.2
+    framework: lightning
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1724218720.403918
+    t:
+      1:
+      - 1
+      - 9
+      - 41
+      - 55
+      2:
+      - 1
+      - 9
+      - 41
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.9.18
+      5: 0.16.2
+      8:
+      - 5
+      13: linux-x86_64
